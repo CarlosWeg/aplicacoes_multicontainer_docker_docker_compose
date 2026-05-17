@@ -104,7 +104,7 @@ O arquivo `.env` na raiz do projeto contém:
 | `APP_PORT`        | Porta exposta no host                  | `3000`                 |
 | `DOCKERHUB_USER`  | Seu usuário do Docker Hub              | `carlosweg`            |
 
-> ⚠️ **Importante:** Antes de executar, edite o `.env` e substitua `carlosweg` pelo seu usuário real do Docker Hub.
+> ⚠️ **Importante:** Confirme que o arquivo `.env` contém seu usuário correto do Docker Hub antes de executar.
 
 ---
 
@@ -141,7 +141,7 @@ git --version
 ### 1. Clonar o Repositório
 
 ```bash
-git clone https://github.com/carlosweg/chatapp.git
+git clone https://github.com/CarlosWeg/aplicacoes_multicontainer_docker_docker_compose
 cd chatapp
 ```
 
@@ -166,7 +166,7 @@ DB_NAME=chatdb
 DB_USER=chatuser
 DB_PASSWORD=chatpass123
 APP_PORT=3000
-DOCKERHUB_USER=meu_usuario  # ← altere aqui
+DOCKERHUB_USER=carlosweg  # ← altere aqui
 ```
 
 ---
