@@ -82,7 +82,6 @@ projeto/
 │   ├── server.js             # Servidor Node.js + API REST
 │   └── package.json          # Dependências Node.js
 ├── evidencias/
-│   └── LEIA-ME.md            # Instruções de evidências
 ├── Dockerfile                # Build da imagem da aplicação
 ├── docker-compose.yml        # Orquestração dos containers
 ├── .env                      # Variáveis de ambiente
