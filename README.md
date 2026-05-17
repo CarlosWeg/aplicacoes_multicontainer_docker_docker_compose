@@ -142,7 +142,7 @@ git --version
 
 ```bash
 git clone https://github.com/CarlosWeg/aplicacoes_multicontainer_docker_docker_compose
-cd chatapp
+cd aplicacoes_multicontainer_docker_docker_compose
 ```
 
 ---
