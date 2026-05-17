@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ChatApp 💬</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0f14;
+      --surface: #161921;
+      --surface2: #1e2230;
+      --border: #2a2f42;
+      --accent: #4f8ef7;
+      --accent2: #7c5cfc;
+      --green: #3ecf8e;
+      --red: #f75f5f;
+      --yellow: #f7c948;
+      --text: #e8eaf0;
+      --text-muted: #6b7280;
+      --font-mono: 'Space Mono', monospace;
+      --font-sans: 'DM Sans', sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      grid-template-rows: 56px 1fr;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── HEADER ─────────────────────── */
+    header {
+      grid-column: 1 / -1;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      gap: 12px;
+    }
+    header .logo {
+      font-family: var(--font-mono);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    header .logo span { color: var(--accent2); }
+    .status-badge {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+    .status-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      transition: background 0.3s;
+    }
+    .status-dot.online { background: var(--green); box-shadow: 0 0 6px var(--green); }
+
+    /* ── SIDEBAR ─────────────────────── */
+    aside {
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .sidebar-section {
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-title {
+      font-size: 0.65rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      margin-bottom: 12px;
+    }
+
+    .form-group { margin-bottom: 8px; }
+    .form-group input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      color: var(--text);
+      font-family: var(--font-sans);
+      font-size: 0.85rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus { border-color: var(--accent); }
+    .form-group input::placeholder { color: var(--text-muted); }
+
+    .btn {
+      width: 100%;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 8px;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 0.05em;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-primary:hover { background: #3a7ae4; transform: translateY(-1px); }
+    .btn-danger {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--red);
+      padding: 4px 8px;
+      width: auto;
+      font-size: 0.65rem;
+    }
+    .btn-danger:hover { background: var(--red); color: #fff; border-color: var(--red); }
+
+    /* user list */
+    .user-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px;
+    }
+    .user-list::-webkit-scrollbar { width: 4px; }
+    .user-list::-webkit-scrollbar-track { background: transparent; }
+    .user-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    .user-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.15s;
+      position: relative;
+    }
+    .user-item:hover, .user-item.active { background: var(--surface2); }
+    .user-item.active { border-left: 3px solid var(--accent); }
+    .user-avatar {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      color: #fff;
+    }
+    .user-info { flex: 1; min-width: 0; }
+    .user-name { font-size: 0.85rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-handle { font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono); }
+
+    /* ── MAIN CHAT ─────────────────────── */
+    main {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--bg);
+    }
+
+    .chat-header {
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .chat-header-info { flex: 1; }
+    .chat-header-name { font-weight: 600; font-size: 0.95rem; }
+    .chat-header-sub { font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono); }
+
+    .messages-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .messages-area::-webkit-scrollbar { width: 4px; }
+    .messages-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    .empty-state {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      gap: 8px;
+    }
+    .empty-state .icon { font-size: 2.5rem; }
+    .empty-state p { font-size: 0.85rem; font-family: var(--font-mono); }
+
+    .message-bubble {
+      display: flex;
+      gap: 10px;
+      animation: fadeIn 0.2s ease;
+    }
+    @keyframes fadeIn { from { opacity:0; transform: translateY(6px); } to { opacity:1; transform: translateY(0); } }
+    .message-avatar {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent2), var(--accent));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      color: #fff;
+    }
+    .message-content { flex: 1; }
+    .message-meta {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .message-meta strong { color: var(--accent); }
+    .message-text {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 0 10px 10px 10px;
+      padding: 8px 14px;
+      font-size: 0.88rem;
+      line-height: 1.5;
+      word-break: break-word;
+    }
+    .message-delete {
+      margin-top: 4px;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .message-bubble:hover .message-delete { opacity: 1; }
+
+    /* input area */
+    .input-area {
+      padding: 16px 20px;
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .no-user-banner {
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      padding: 8px;
+    }
+    .input-row {
+      display: flex;
+      gap: 10px;
+    }
+    .input-row input {
+      flex: 1;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 16px;
+      color: var(--text);
+      font-family: var(--font-sans);
+      font-size: 0.88rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .input-row input:focus { border-color: var(--accent); }
+    .input-row input::placeholder { color: var(--text-muted); }
+    .send-btn {
+      background: var(--accent);
+      border: none;
+      border-radius: 10px;
+      padding: 10px 18px;
+      color: #fff;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .send-btn:hover { background: #3a7ae4; transform: translateY(-1px); }
+    .send-btn:disabled { background: var(--border); cursor: not-allowed; transform: none; }
+
+    /* toast */
+    #toast {
+      position: fixed;
+      bottom: 24px; right: 24px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 16px;
+      font-size: 0.8rem;
+      font-family: var(--font-mono);
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.3s;
+      z-index: 999;
+    }
+    #toast.show { opacity: 1; transform: translateY(0); }
+    #toast.success { border-color: var(--green); color: var(--green); }
+    #toast.error { border-color: var(--red); color: var(--red); }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">chat<span>_app</span></div>
+  <span style="color: var(--text-muted); font-size: 0.75rem; font-family: var(--font-mono);">// Infraestrutura Multicontainer</span>
+  <div class="status-badge">
+    <div class="status-dot" id="statusDot"></div>
+    <span id="statusText">verificando...</span>
+  </div>
+</header>
+
+<!-- SIDEBAR -->
+<aside>
+  <div class="sidebar-section">
+    <div class="sidebar-title">// novo usuário</div>
+    <div class="form-group">
+      <input type="text" id="inputNome" placeholder="Nome completo" maxlength="100"/>
+    </div>
+    <div class="form-group">
+      <input type="text" id="inputUsername" placeholder="@username" maxlength="50"/>
+    </div>
+    <button class="btn btn-primary" onclick="cadastrarUsuario()">+ Cadastrar</button>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-title">// usuários online</div>
+  </div>
+  <div class="user-list" id="userList">
+    <div style="text-align:center; color: var(--text-muted); font-size: 0.75rem; padding: 16px; font-family: var(--font-mono);">nenhum usuário</div>
+  </div>
+</aside>
+
+<!-- MAIN CHAT -->
+<main>
+  <div class="chat-header" id="chatHeader">
+    <div class="message-avatar" id="chatAvatar" style="width:36px;height:36px;">?</div>
+    <div class="chat-header-info">
+      <div class="chat-header-name" id="chatName">Selecione um usuário</div>
+      <div class="chat-header-sub" id="chatSub">← selecione na lista para chatear</div>
+    </div>
+    <button class="btn-danger btn" id="btnDeleteUser" style="display:none;" onclick="deletarUsuario()">🗑 Remover usuário</button>
+  </div>
+
+  <div class="messages-area" id="messagesArea">
+    <div class="empty-state">
+      <div class="icon">💬</div>
+      <p>// selecione um usuário para ver as mensagens</p>
+    </div>
+  </div>
+
+  <div class="input-area">
+    <div class="no-user-banner" id="noBanner">Cadastre e selecione um usuário para enviar mensagens</div>
+    <div class="input-row" id="inputRow" style="display:none;">
+      <input type="text" id="inputMsg" placeholder="Digite uma mensagem..." maxlength="500"
+             onkeydown="if(event.key==='Enter') enviarMensagem()"/>
+      <button class="send-btn" id="sendBtn" onclick="enviarMensagem()">Enviar →</button>
+    </div>
+  </div>
+</main>
+
+<div id="toast"></div>
+
+<script>
+  const API = '/api';
+  let usuarioAtivo = null;
+  let todosUsuarios = [];
+  let todasMensagens = [];
+
+  // ── UTILS ──────────────────────────
+  function toast(msg, tipo = 'success') {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = `show ${tipo}`;
+    setTimeout(() => { el.className = ''; }, 3000);
+  }
+
+  function avatar(nome) {
+    return nome ? nome.charAt(0).toUpperCase() : '?';
+  }
+
+  function formatHora(ts) {
+    return new Date(ts).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  // ── STATUS ──────────────────────────
+  async function checkHealth() {
+    try {
+      const r = await fetch(`${API}/health`);
+      const d = await r.json();
+      const dot = document.getElementById('statusDot');
+      const txt = document.getElementById('statusText');
+      if (d.status === 'OK') {
+        dot.className = 'status-dot online';
+        txt.textContent = 'banco conectado';
+      } else {
+        dot.className = 'status-dot';
+        txt.textContent = 'banco desconectado';
+      }
+    } catch {
+      document.getElementById('statusText').textContent = 'servidor offline';
+    }
+  }
+
+  // ── USUÁRIOS ──────────────────────────
+  async function carregarUsuarios() {
+    try {
+      const r = await fetch(`${API}/usuarios`);
+      todosUsuarios = await r.json();
+      renderUsuarios();
+    } catch { toast('Erro ao carregar usuários', 'error'); }
+  }
+
+  function renderUsuarios() {
+    const list = document.getElementById('userList');
+    if (!todosUsuarios.length) {
+      list.innerHTML = `<div style="text-align:center; color: var(--text-muted); font-size: 0.75rem; padding: 16px; font-family: var(--font-mono);">nenhum usuário</div>`;
+      return;
+    }
+    list.innerHTML = todosUsuarios.map(u => `
+      <div class="user-item ${usuarioAtivo?.id === u.id ? 'active' : ''}" onclick="selecionarUsuario(${u.id})">
+        <div class="user-avatar">${avatar(u.nome)}</div>
+        <div class="user-info">
+          <div class="user-name">${u.nome}</div>
+          <div class="user-handle">@${u.username}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  async function cadastrarUsuario() {
+    const nome = document.getElementById('inputNome').value.trim();
+    const username = document.getElementById('inputUsername').value.trim().replace('@', '');
+    if (!nome || !username) return toast('Preencha nome e username', 'error');
+    try {
+      const r = await fetch(`${API}/usuarios`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nome, username })
+      });
+      const d = await r.json();
+      if (!r.ok) return toast(d.erro || 'Erro ao cadastrar', 'error');
+      document.getElementById('inputNome').value = '';
+      document.getElementById('inputUsername').value = '';
+      toast(`✓ ${d.nome} cadastrado!`);
+      await carregarUsuarios();
+      selecionarUsuario(d.id);
+    } catch { toast('Erro de conexão', 'error'); }
+  }
+
+  function selecionarUsuario(id) {
+    usuarioAtivo = todosUsuarios.find(u => u.id === id) || null;
+    renderUsuarios();
+    if (usuarioAtivo) {
+      document.getElementById('chatAvatar').textContent = avatar(usuarioAtivo.nome);
+      document.getElementById('chatName').textContent = usuarioAtivo.nome;
+      document.getElementById('chatSub').textContent = `@${usuarioAtivo.username}`;
+      document.getElementById('btnDeleteUser').style.display = 'block';
+      document.getElementById('noBanner').style.display = 'none';
+      document.getElementById('inputRow').style.display = 'flex';
+      carregarMensagens();
+    }
+  }
+
+  async function deletarUsuario() {
+    if (!usuarioAtivo) return;
+    if (!confirm(`Remover usuário "${usuarioAtivo.nome}" e todas suas mensagens?`)) return;
+    try {
+      const r = await fetch(`${API}/usuarios/${usuarioAtivo.id}`, { method: 'DELETE' });
+      if (!r.ok) return toast('Erro ao remover', 'error');
+      toast(`✓ Usuário removido`);
+      usuarioAtivo = null;
+      document.getElementById('chatName').textContent = 'Selecione um usuário';
+      document.getElementById('chatSub').textContent = '← selecione na lista para chatear';
+      document.getElementById('chatAvatar').textContent = '?';
+      document.getElementById('btnDeleteUser').style.display = 'none';
+      document.getElementById('noBanner').style.display = 'block';
+      document.getElementById('inputRow').style.display = 'none';
+      document.getElementById('messagesArea').innerHTML = `
+        <div class="empty-state">
+          <div class="icon">💬</div>
+          <p>// selecione um usuário para ver as mensagens</p>
+        </div>`;
+      await carregarUsuarios();
+    } catch { toast('Erro de conexão', 'error'); }
+  }
+
+  // ── MENSAGENS ──────────────────────────
+  async function carregarMensagens() {
+    try {
+      const r = await fetch(`${API}/mensagens`);
+      todasMensagens = await r.json();
+      renderMensagens();
+    } catch { toast('Erro ao carregar mensagens', 'error'); }
+  }
+
+  function renderMensagens() {
+    const area = document.getElementById('messagesArea');
+    if (!todasMensagens.length) {
+      area.innerHTML = `
+        <div class="empty-state">
+          <div class="icon">✉️</div>
+          <p>// nenhuma mensagem ainda. diga olá!</p>
+        </div>`;
+      return;
+    }
+    area.innerHTML = todasMensagens.map(m => `
+      <div class="message-bubble">
+        <div class="message-avatar">${avatar(m.nome)}</div>
+        <div class="message-content">
+          <div class="message-meta">
+            <strong>@${m.username}</strong> · ${m.nome} · ${formatHora(m.enviado_em)}
+          </div>
+          <div class="message-text">${escapeHtml(m.conteudo)}</div>
+          <div class="message-delete">
+            <button class="btn btn-danger" onclick="deletarMensagem(${m.id})">🗑 apagar</button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+    area.scrollTop = area.scrollHeight;
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  async function enviarMensagem() {
+    if (!usuarioAtivo) return toast('Selecione um usuário', 'error');
+    const input = document.getElementById('inputMsg');
+    const conteudo = input.value.trim();
+    if (!conteudo) return;
+    document.getElementById('sendBtn').disabled = true;
+    try {
+      const r = await fetch(`${API}/mensagens`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ usuario_id: usuarioAtivo.id, conteudo })
+      });
+      if (!r.ok) return toast('Erro ao enviar mensagem', 'error');
+      input.value = '';
+      await carregarMensagens();
+    } catch { toast('Erro de conexão', 'error'); }
+    finally { document.getElementById('sendBtn').disabled = false; }
+  }
+
+  async function deletarMensagem(id) {
+    try {
+      await fetch(`${API}/mensagens/${id}`, { method: 'DELETE' });
+      await carregarMensagens();
+      toast('✓ Mensagem removida');
+    } catch { toast('Erro ao remover', 'error'); }
+  }
+
+  // ── INIT ──────────────────────────
+  checkHealth();
+  setInterval(checkHealth, 30000);
+  carregarUsuarios();
+  setInterval(() => { if (usuarioAtivo) carregarMensagens(); }, 5000);
+</script>
+
+</body>
+</html>

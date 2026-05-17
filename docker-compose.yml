@@ -1,0 +1,72 @@
+services:
+
+  # ─────────────────────────────────────────────
+  # Container do Banco de Dados (PostgreSQL)
+  # ─────────────────────────────────────────────
+  db:
+    image: postgres:16-alpine
+    container_name: chatapp_db
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+
+    volumes:
+      # Persistência dos dados: os dados sobrevivem ao restart dos containers
+      - chatapp_db_data:/var/lib/postgresql/data
+
+    networks:
+      - chatapp_network
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # ─────────────────────────────────────────────
+  # Container da Aplicação (Node.js)
+  # ─────────────────────────────────────────────
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ${DOCKERHUB_USER}/chatapp:latest
+    container_name: chatapp_app
+    restart: unless-stopped
+
+    ports:
+      - "${APP_PORT}:3000"
+
+    environment:
+      PORT: 3000
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      NODE_ENV: production
+
+    depends_on:
+      db:
+        condition: service_healthy
+
+    networks:
+      - chatapp_network
+
+# ─────────────────────────────────────────────
+# Volumes nomeados (persistência)
+# ─────────────────────────────────────────────
+volumes:
+  chatapp_db_data:
+    driver: local
+
+# ─────────────────────────────────────────────
+# Rede personalizada (comunicação entre containers)
+# ─────────────────────────────────────────────
+networks:
+  chatapp_network:
+    driver: bridge
