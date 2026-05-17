@@ -19,21 +19,21 @@ A aplicação realiza as seguintes operações de **CRUD**:
 
 | Entidade   | Criar | Ler | Deletar |
 |------------|-------|-----|---------|
-| Usuários   | ✅    | ✅  | ✅      |
-| Mensagens  | ✅    | ✅  | ✅      |
+| Usuários   | ✅    | ✅  | ✅     |
+| Mensagens  | ✅    | ✅  | ✅     |
 
 ---
 
 ## 🛠 Tecnologias Utilizadas
 
-| Camada       | Tecnologia          |
-|--------------|---------------------|
-| Backend      | Node.js 20 + Express 4 |
-| Frontend     | HTML5 / CSS3 / JavaScript (Vanilla) |
-| Banco de Dados | PostgreSQL 16     |
-| Container    | Docker + Docker Compose v2 |
-| Imagem Base  | `node:20-alpine`   |
-| Registro     | Docker Hub          |
+| Camada         | Tecnologia                          |
+|----------------|-------------------------------------|
+| Backend        | Node.js 20 + Express 4              |
+| Frontend       | HTML5 / CSS3 / JavaScript (Vanilla) |
+| Banco de Dados | PostgreSQL 16                       |
+| Container      | Docker + Docker Compose v2          |
+| Imagem Base    | `node:20-alpine`                    |
+| Registro       | Docker Hub                          |
 
 ---
 
@@ -499,23 +499,7 @@ docker compose up -d
 
 ## 📸 Evidências
 
-A pasta `evidencias/` deve conter os seguintes prints:
-
-| Arquivo                        | Conteúdo                              |
-|--------------------------------|---------------------------------------|
-| `01_app_rodando_local.png`     | Aplicação funcionando no navegador    |
-| `02_docker_build.png`          | Saída do `docker build`               |
-| `03_docker_images.png`         | Saída do `docker images`              |
-| `04_docker_compose_up.png`     | Saída do `docker compose up`          |
-| `05_docker_ps.png`             | Saída do `docker ps`                  |
-| `06_app_conectando_banco.png`  | Log mostrando conexão com o banco     |
-| `07_cadastro_funcionando.png`  | Cadastro de usuário funcionando       |
-| `08_consulta_funcionando.png`  | Consulta de mensagens funcionando     |
-| `09_docker_volume_ls.png`      | Saída do `docker volume ls`           |
-| `10_persistencia_dados.png`    | Dados persistidos após restart        |
-| `11_docker_login.png`          | `docker login` realizado              |
-| `12_docker_push.png`           | `docker push` da imagem               |
-| `13_dockerhub_pagina_publica.png` | Página pública da imagem no Hub    |
+A pasta `evidencias/` contém os arquivos que comprovam a execução do projeto.
 
 ---
 
